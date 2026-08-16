@@ -5,6 +5,7 @@ import * as Players from "./players.js";
 import { recordResult, simulateEditResult, editResult } from "./boards.js";
 import * as I18n from "./i18n.js";
 import * as Github from "./github.js";
+import * as Registration from "./registration.js";
 import { buildResultsSummary } from "./export.js";
 import { renderSetupNames, renderManualPairing, renderTeamConfirm, renderBoardCount } from "./ui/setup-view.js";
 import { renderMatchView } from "./ui/match-view.js";
@@ -155,7 +156,16 @@ function render() {
       // Auto-attempt exactly once per completed tournament, deferred to the
       // next tick so it doesn't re-enter persistAndRender()/render() (and
       // thus this same renderChampionView() call) before this one returns.
-      if (!state.resultsUpload && Github.hasConfig(Github.loadConfig())) {
+      // Skipped silently (no error shown, champion view renders as normal)
+      // when the run is flagged "Unregistered", there's no connectivity, or
+      // no token has been configured yet — the manual "Save Results to
+      // GitHub" button in the champion view still covers those cases.
+      if (
+        !state.resultsUpload &&
+        !Registration.isUnregistered() &&
+        navigator.onLine &&
+        Github.hasConfig(Github.loadConfig())
+      ) {
         setTimeout(() => app.saveResultsToGithub(), 0);
       }
       break;
@@ -163,6 +173,15 @@ function render() {
     default:
       renderSetupNames(root, state, app);
   }
+}
+
+const regToggleBtn = document.getElementById("registration-toggle");
+
+function updateRegistrationButton() {
+  const active = Registration.isUnregistered();
+  regToggleBtn.textContent = I18n.t("unregisteredToggle");
+  regToggleBtn.classList.toggle("active", active);
+  regToggleBtn.setAttribute("aria-pressed", String(active));
 }
 
 function wireLanguageToggle() {
@@ -176,6 +195,7 @@ function wireLanguageToggle() {
     esBtn.classList.toggle("active", lang === "es");
     enBtn.setAttribute("aria-pressed", String(lang === "en"));
     esBtn.setAttribute("aria-pressed", String(lang === "es"));
+    updateRegistrationButton();
   }
 
   enBtn.addEventListener("click", () => {
@@ -192,8 +212,17 @@ function wireLanguageToggle() {
   updateButtons();
 }
 
+function wireRegistrationToggle() {
+  regToggleBtn.addEventListener("click", () => {
+    Registration.setUnregistered(!Registration.isUnregistered());
+    updateRegistrationButton();
+  });
+  updateRegistrationButton();
+}
+
 render();
 wireLanguageToggle();
+wireRegistrationToggle();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

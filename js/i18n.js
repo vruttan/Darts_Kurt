@@ -91,6 +91,7 @@ const STRINGS = {
     uploadErrorNotFound: "Repository not found — check the owner/name and that the token has access.",
     uploadErrorConflict: "A file already exists at that path and couldn't be resolved automatically.",
     uploadErrorGeneric: "Upload failed ({status}). Try again.",
+    unregisteredToggle: "Unregistered",
   },
   es: {
     playerNamePlaceholder: "Nombre del jugador",
@@ -177,6 +178,7 @@ const STRINGS = {
     uploadErrorNotFound: "No se encontró el repositorio — revisa el propietario/nombre y que el token tenga acceso.",
     uploadErrorConflict: "Ya existe un archivo en esa ruta y no se pudo resolver automáticamente.",
     uploadErrorGeneric: "Error al subir ({status}). Inténtalo de nuevo.",
+    unregisteredToggle: "No Registrado",
   },
 };
 
