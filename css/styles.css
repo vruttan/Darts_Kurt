@@ -1,0 +1,565 @@
+:root {
+  --bg: #111111;
+  --panel: #1c1c1c;
+  --panel-alt: #262626;
+  --text: #f2f2f2;
+  --muted: #a0a0a0;
+  --accent: #2e9e5b;
+  --accent-dark: #1f6e3e;
+  --danger: #b3401f;
+  --border: #3a3a3a;
+  --tap-min: 48px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+#app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 16px 48px;
+}
+
+/* The live match screen gets a wider stage so the board queue and bracket
+   diagrams can sit side by side on a landscape iPad instead of stacking. */
+#app:has(.live-screen) {
+  max-width: 1400px;
+}
+
+.live-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.live-left, .live-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .live-layout {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .live-left {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.app-header {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8px 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-badge {
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo-badge img {
+  display: block;
+  height: 45px;
+  width: auto;
+}
+
+.app-title {
+  font-size: 1.1rem;
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.lang-toggle {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lang-btn {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #06210f;
+  font-weight: 600;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 8px 0 16px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin: 0 0 12px;
+}
+
+p.subtitle {
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+input[type="text"], input[type="number"] {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 12px;
+  min-height: var(--tap-min);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+}
+
+button {
+  font-size: 1.05rem;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #06210f;
+  font-weight: 600;
+}
+
+button.primary:disabled {
+  background: #33513f;
+  color: #7c8f83;
+  border-color: #33513f;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: transparent;
+}
+
+button.danger {
+  background: var(--danger);
+  border-color: #7c2a15;
+  color: #fff0eb;
+}
+
+button.link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  text-decoration: underline;
+  min-width: auto;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 8px 6px 14px;
+  font-size: 1rem;
+}
+
+.chip button {
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.team-card {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1.05rem;
+}
+
+.banner {
+  background: #3a2f14;
+  border: 1px solid #6b5522;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.board-card {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.board-card .board-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.board-card.idle {
+  opacity: 0.6;
+}
+
+.board-card.complete {
+  opacity: 0.9;
+}
+
+.team-tap {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 18px;
+  margin-top: 8px;
+}
+
+.team-tap.winner {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #06210f;
+  font-weight: 600;
+}
+
+.team-tap.loser {
+  background: var(--danger);
+  border-color: #7c2a15;
+  color: #fff0eb;
+  opacity: 0.75;
+}
+
+.team-tap:disabled {
+  cursor: not-allowed;
+}
+
+.team-tap.editable {
+  opacity: 1;
+  outline: 2px dashed var(--danger);
+  outline-offset: -2px;
+  cursor: pointer;
+}
+
+.completed-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 6px 0 0;
+}
+
+.chip-select {
+  min-height: auto;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-size: 1rem;
+}
+
+.chip-select.selected {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #06210f;
+  font-weight: 600;
+}
+
+.team-card.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vs {
+  color: var(--muted);
+  text-align: center;
+  margin: 4px 0;
+}
+
+details.bracket-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+details.bracket-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 0;
+}
+
+.bd-wrap {
+  margin-top: 8px;
+}
+
+.bd-scroll {
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.bd-canvas {
+  position: relative;
+}
+
+.bd-canvas svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.bd-canvas path {
+  stroke: var(--border);
+  stroke-width: 2;
+  fill: none;
+}
+
+.bd-round {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bd-canvas .bd-round {
+  position: absolute;
+  top: 0;
+  width: 190px;
+}
+
+.bd-canvas .bd-match {
+  position: absolute;
+}
+
+.bd-match {
+  width: 190px;
+  height: 56px;
+  box-sizing: border-box;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bd-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  min-width: 0;
+}
+
+.bd-team + .bd-team {
+  border-top: 1px solid var(--border);
+}
+
+.bd-team.win {
+  border-left-color: var(--accent);
+  font-weight: bold;
+}
+
+.bd-team.win .bd-name::after {
+  content: " \2713";
+  color: var(--accent);
+}
+
+.bd-team.lose .bd-name {
+  color: var(--muted);
+}
+
+.bd-team.bye {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.bd-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bd-rec {
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.bd-gf {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.bd-gf-item .bd-round {
+  margin-bottom: 6px;
+}
+
+.champion-banner {
+  text-align: center;
+  padding: 32px 16px;
+  background: linear-gradient(180deg, #2e9e5b33, transparent);
+  border-radius: 12px;
+}
+
+.champion-banner .trophy {
+  font-size: 3rem;
+}
+
+.champion-banner h2 {
+  font-size: 1.8rem;
+  margin: 8px 0 4px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actions.row-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.actions.row-actions button {
+  flex: 1;
+}
+
+.waiting-strip {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.waiting-strip.error {
+  color: var(--danger);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  overflow-y: auto;
+  z-index: 100;
+}
+
+/* Centering lives here, one level in from the scrollable overlay, and is
+   always exactly as tall as its content (min-height, not height). A flex
+   container that centers a child *taller than itself* pushes half the
+   overflow above its own top edge, and that part falls outside any
+   scrollable area and becomes permanently unreachable — the bug behind a
+   long confirm dialog's button being impossible to reach on a phone. Since
+   this wrapper's cross size always matches the dialog when the dialog is
+   the taller of the two, centering here never fights an overflow, so nothing
+   is ever pushed out of scroll range; short dialogs still land centered
+   because min-height guarantees at least a full screen to center within. */
+.modal-overlay-inner {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-dialog {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 360px;
+  width: 100%;
+}
+
+.modal-dialog p {
+  font-size: 1.1rem;
+  margin: 0 0 16px;
+}
+
+select {
+  font-size: 1.05rem;
+  padding: 10px;
+  min-height: var(--tap-min);
+  border-radius: 8px;
+  background: var(--panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
