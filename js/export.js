@@ -84,20 +84,34 @@ export function buildResultsSummary(state) {
     })
     .map(({ teamId, isChampion, isRunnerUp, ...entry }, i) => ({ ...entry, finalRank: i + 1 }));
 
+  // Alongside the human-readable fields above, also carry the graph data
+  // (id, status, team/winner/loser ids, source pointers) that
+  // bracketDiagram()/teamRecords() need — this is what lets a saved file be
+  // re-rendered later in the same graphical format the champion screen
+  // shows live, via buildHistoricalBracketState() in util.js. Local to this
+  // file only; not stable across separate uploads.
   const matches = allMatches.map((m) => ({
+    id: m.id,
     bracket: m.bracket,
     round: m.round,
+    status: m.status,
     teamA: m.teamAId == null ? null : teamLabel(state, m.teamAId),
     teamB: m.teamBId == null ? null : teamLabel(state, m.teamBId),
     winner: m.winnerId == null ? null : teamLabel(state, m.winnerId),
     isBye: m.isBye,
+    teamAId: m.teamAId,
+    teamBId: m.teamBId,
+    winnerId: m.winnerId,
+    loserId: m.loserId,
+    teamASource: m.teamASource,
+    teamBSource: m.teamBSource,
   }));
 
   const championTeam = state.teams.find((tm) => tm.id === state.championTeamId);
   const runnerUpTeam = state.teams.find((tm) => tm.id === runnerUpId);
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     date: state.createdAt,
     completedAt: state.updatedAt,
     playerCount: state.players.length,
@@ -106,6 +120,7 @@ export function buildResultsSummary(state) {
     champion: { teamName: teamLabel(state, state.championTeamId), players: championTeam ? playerNames(state, championTeam) : [] },
     runnerUp: { teamName: teamLabel(state, runnerUpId), players: runnerUpTeam ? playerNames(state, runnerUpTeam) : [] },
     standings,
+    teams: state.teams.map((tm) => ({ id: tm.id, name: tm.name })),
     matches,
   };
 }

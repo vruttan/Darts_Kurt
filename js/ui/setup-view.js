@@ -85,6 +85,7 @@ export function renderSetupNames(root, state, app) {
         onclick: () => app.goToManualTeams(),
       }),
       updateButton,
+      el("button", { class: "link", text: t("viewPastResults"), onclick: () => app.openHistory() }),
     ]),
     updateStatus,
   ]);

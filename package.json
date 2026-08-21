@@ -4,6 +4,6 @@
   "type": "module",
   "description": "Static offline-first PWA for running Kurt's double-elimination darts tournaments. No build step; this file only exists so `node tests/bracket.test.js` can run the bracket module as native ES modules.",
   "scripts": {
-    "test": "node tests/bracket.test.js && node tests/boards.test.js"
+    "test": "node tests/bracket.test.js && node tests/boards.test.js && node tests/util.test.js"
   }
 }

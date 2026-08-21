@@ -24,6 +24,17 @@ export function el(tag, attrs = {}, children = []) {
   return node;
 }
 
+// Shared wrapper for a bracketDiagram()/grandFinalSection() HTML blob
+// (export.js) inside a collapsible section — used on both the champion
+// screen (live tournament) and the history detail screen (past results).
+export function renderDiagramSection(title, html) {
+  if (!html) return null;
+  return el("details", { class: "bracket-section", open: true }, [
+    el("summary", { text: title }),
+    el("div", { class: "bd-wrap", html }),
+  ]);
+}
+
 export function clearNode(node) {
   while (node.firstChild) node.removeChild(node.firstChild);
 }

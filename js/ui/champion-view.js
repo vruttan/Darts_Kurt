@@ -1,23 +1,16 @@
 // Champion screen: winner/runner-up banner + expanded brackets + start-over action.
 
-import { el, mount, showConfirm } from "./render.js";
+import { el, mount, showConfirm, renderDiagramSection } from "./render.js";
 import { teamRecords } from "../util.js";
 import { bracketDiagram, exportJSON, getRunnerUpId } from "../export.js";
 import { renderCompletedPanel } from "./completed-matches.js";
+import { renderGithubConfigForm } from "./github-config-form.js";
 import * as Github from "../github.js";
 import { t } from "../i18n.js";
 
 function teamLabel(state, id) {
   const team = state.teams.find((tm) => tm.id === id);
   return team ? team.name : t("tbd");
-}
-
-function renderDiagramSection(title, html) {
-  if (!html) return null;
-  return el("details", { class: "bracket-section", open: true }, [
-    el("summary", { text: title }),
-    el("div", { class: "bd-wrap", html }),
-  ]);
 }
 
 // Purely transient "which view of the GitHub panel is showing" flag — not
@@ -40,39 +33,6 @@ function uploadErrorKey(kind) {
     default:
       return "uploadErrorGeneric";
   }
-}
-
-function renderGithubConfigForm(root, state, app, config) {
-  const tokenInput = el("input", { type: "text", placeholder: t("githubTokenLabel"), value: config.token });
-  const branchInput = el("input", { type: "text", placeholder: t("githubBranchLabel"), value: config.branch });
-
-  const fieldsFilled = () => tokenInput.value.trim();
-
-  const saveButton = el("button", {
-    class: "primary",
-    text: t("saveAndUpload"),
-    onclick: () => {
-      if (!fieldsFilled()) return;
-      configFormVisible = false;
-      app.saveGithubConfig({
-        token: tokenInput.value,
-        branch: branchInput.value,
-      });
-    },
-  });
-  saveButton.disabled = !fieldsFilled();
-  tokenInput.addEventListener("input", () => {
-    saveButton.disabled = !fieldsFilled();
-  });
-
-  return el("div", { class: "panel" }, [
-    el("h2", { text: t("githubSectionTitle") }),
-    el("p", { class: "subtitle", text: t("githubSetupIntro") }),
-    el("p", { class: "waiting-strip", text: t("githubTokenHelp") }),
-    tokenInput,
-    branchInput,
-    el("div", { class: "actions" }, [saveButton]),
-  ]);
 }
 
 function renderGithubStatusPanel(root, state, app, config) {
@@ -116,7 +76,10 @@ function renderGithubSection(root, state, app) {
   const config = Github.loadConfig();
   return Github.hasConfig(config) && !configFormVisible
     ? renderGithubStatusPanel(root, state, app, config)
-    : renderGithubConfigForm(root, state, app, config);
+    : renderGithubConfigForm(root, state, app, config, (fields) => {
+        configFormVisible = false;
+        app.saveGithubConfig(fields);
+      });
 }
 
 export function renderChampionView(root, state, app) {

@@ -10,11 +10,22 @@ import { buildResultsSummary } from "./export.js";
 import { renderSetupNames, renderManualPairing, renderTeamConfirm, renderBoardCount } from "./ui/setup-view.js";
 import { renderMatchView } from "./ui/match-view.js";
 import { renderChampionView } from "./ui/champion-view.js";
+import { renderHistoryList, renderHistoryDetail } from "./ui/history-view.js";
 
 const root = document.getElementById("app");
 
 let state = Store.load() || Store.createInitialState();
 let swRegistration = null;
+
+// Transient "browsing past GitHub results" UI state — not tournament data,
+// so (like champion-view.js's configFormVisible) it deliberately lives
+// outside `state` rather than as a new state.phase: it's non-resumable,
+// network-fetched browse state unrelated to the persisted, schema-versioned
+// tournament phase machine, and should never survive a reload or interfere
+// with it.
+// { mode: "list", status: "loading"|"loaded"|"error", error, files }
+// { mode: "detail", file, status: "loading"|"loaded"|"error", error, summary }
+let historyView = null;
 
 function persistAndRender() {
   Store.save(state);
@@ -118,6 +129,36 @@ const app = {
     Github.saveConfig(fields);
     app.saveResultsToGithub();
   },
+  openHistory() {
+    historyView = { mode: "list", status: "loading", error: null, files: null };
+    render();
+    Github.listResults(Github.loadConfig()).then((result) => {
+      if (!historyView || historyView.mode !== "list") return; // user navigated away
+      historyView = result.ok
+        ? { mode: "list", status: "loaded", error: null, files: result.files }
+        : { mode: "list", status: "error", error: result.kind, files: null };
+      render();
+    });
+  },
+  closeHistory() {
+    historyView = null;
+    render();
+  },
+  selectHistoryFile(file) {
+    historyView = { mode: "detail", file, status: "loading", error: null, summary: null };
+    render();
+    Github.fetchResult(Github.loadConfig(), file.path).then((result) => {
+      if (!historyView || historyView.mode !== "detail" || historyView.file !== file) return;
+      historyView = result.ok
+        ? { mode: "detail", file, status: "loaded", error: null, summary: result.summary }
+        : { mode: "detail", file, status: "error", error: result.kind, summary: null };
+      render();
+    });
+  },
+  saveGithubConfigForHistory(fields) {
+    Github.saveConfig(fields);
+    app.openHistory();
+  },
   // Manually forces the same update check the app already runs on its own
   // whenever the tab regains focus (see the service worker registration
   // below) — for someone who wants to confirm right now rather than wait.
@@ -137,6 +178,11 @@ const app = {
 };
 
 function render() {
+  if (historyView) {
+    if (historyView.mode === "list") renderHistoryList(root, state, app, historyView);
+    else renderHistoryDetail(root, state, app, historyView);
+    return;
+  }
   switch (state.phase) {
     case "teams":
       if (state.teamsMode === "manual" && !Players.isManualPairingComplete(state)) {

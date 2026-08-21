@@ -4,7 +4,7 @@
 //
 // Bump CACHE_NAME on every deploy to bust old caches (no build tooling here
 // to content-hash filenames).
-const CACHE_NAME = "darts-v18";
+const CACHE_NAME = "darts-v19";
 
 const ASSETS = [
   "./",
@@ -26,6 +26,8 @@ const ASSETS = [
   "./js/ui/match-view.js",
   "./js/ui/champion-view.js",
   "./js/ui/completed-matches.js",
+  "./js/ui/history-view.js",
+  "./js/ui/github-config-form.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 ];

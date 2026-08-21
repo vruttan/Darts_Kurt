@@ -54,3 +54,36 @@ export function makeId(prefix) {
   idCounter += 1;
   return `${prefix}-${idCounter}`;
 }
+
+// True only for a results summary (buildResultsSummary() in export.js)
+// uploaded under schemaVersion 2+, which carries match ids/source pointers
+// alongside the display strings. Older uploaded files (schemaVersion 1)
+// lack that graph data, so callers should fall back to a plain summary
+// view for them instead of feeding them to the bracket diagram renderer.
+export function hasDiagramData(summary) {
+  return Boolean(
+    summary &&
+      summary.schemaVersion >= 2 &&
+      Array.isArray(summary.matches) &&
+      summary.matches.length > 0 &&
+      summary.matches[0].id != null
+  );
+}
+
+// Reshapes a schemaVersion 2+ results summary back into the same shape
+// bracketDiagram() (export.js) already renders live from state — a matches
+// map keyed by id, a minimal {teams} state for teamLabel() lookups, and
+// win/loss records — so a saved file can be rendered in the exact same
+// graphical format without any DOM/i18n dependency here. Mirrors what
+// champion-view.js does live: winners/losers bracket diagrams only: the
+// grand final matches are excluded here the same way they're excluded
+// there (bracket "grandfinal"/"grandfinal-reset" never appears in
+// wbMatches/lbMatches).
+export function buildHistoricalBracketState(summary) {
+  const matches = Object.fromEntries(summary.matches.map((m) => [m.id, m]));
+  const state = { teams: summary.teams, matches };
+  const records = teamRecords(matches);
+  const wbMatches = summary.matches.filter((m) => m.bracket === "winners");
+  const lbMatches = summary.matches.filter((m) => m.bracket === "losers");
+  return { state, records, wbMatches, lbMatches };
+}

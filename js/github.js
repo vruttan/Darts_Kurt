@@ -73,12 +73,74 @@ function contentsUrl(config, path) {
   return `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`;
 }
 
+// GET requests read a specific ref via a query param (unlike PUT, which
+// takes it in the JSON body) — appended to contentsUrl() wherever we read.
+function refQuery(config) {
+  return config.branch ? `?ref=${encodeURIComponent(config.branch)}` : "";
+}
+
+// Inverse of utf8ToBase64: GitHub's Contents API returns `content` as base64
+// with embedded newlines every 60-ish characters, which atob() rejects.
+function base64ToUtf8(b64) {
+  const binary = atob(b64.replace(/\n/g, ""));
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
 async function putFile(config, path, body) {
   return fetch(contentsUrl(config, path), {
     method: "PUT",
     headers: apiHeaders(config),
     body: JSON.stringify(body),
   });
+}
+
+// Lists the JSON result files directly inside config.pathPrefix, newest
+// first (date-slug filenames sort correctly as plain strings). A missing
+// directory (no results uploaded yet) is a normal empty state, not an
+// error. Never throws, like uploadResults().
+export async function listResults(config) {
+  const dir = config.pathPrefix || DEFAULT_PATH_PREFIX;
+  let response;
+  try {
+    response = await fetch(`${contentsUrl(config, dir)}${refQuery(config)}`, { headers: apiHeaders(config) });
+  } catch {
+    return { ok: false, kind: "network" };
+  }
+
+  if (response.status === 404) return { ok: true, files: [] };
+  if (response.status === 401) return { ok: false, kind: "auth" };
+  if (!response.ok) return { ok: false, kind: "other", status: response.status };
+
+  const json = await response.json();
+  const files = (Array.isArray(json) ? json : [])
+    .filter((entry) => entry.type === "file" && entry.name.endsWith(".json"))
+    .map((entry) => ({ name: entry.name, path: entry.path, sha: entry.sha }))
+    .sort((a, b) => b.name.localeCompare(a.name));
+  return { ok: true, files };
+}
+
+// Fetches and decodes a single results JSON file at `path` (as returned by
+// listResults). Unlike listResults, a 404 here is a real error — the file
+// was just in the list we showed the user.
+export async function fetchResult(config, path) {
+  let response;
+  try {
+    response = await fetch(`${contentsUrl(config, path)}${refQuery(config)}`, { headers: apiHeaders(config) });
+  } catch {
+    return { ok: false, kind: "network" };
+  }
+
+  if (response.status === 401) return { ok: false, kind: "auth" };
+  if (response.status === 404) return { ok: false, kind: "notfound" };
+  if (!response.ok) return { ok: false, kind: "other", status: response.status };
+
+  const json = await response.json();
+  try {
+    return { ok: true, summary: JSON.parse(base64ToUtf8(json.content)) };
+  } catch {
+    return { ok: false, kind: "other" };
+  }
 }
 
 // Uploads `summary` (a plain results object, see export.js's
